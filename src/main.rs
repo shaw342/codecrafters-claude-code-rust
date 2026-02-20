@@ -56,6 +56,28 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                           "required": ["file_path"]
                         }
                       }
+                    },
+                    {
+                      "choices": [
+                        {
+                          "index": 0,
+                          "message": {
+                            "role": "assistant",
+                            "content": null,
+                            "tool_calls": [
+                              {
+                                "id": "call_abc123",
+                                "type": "function",
+                                "function": {
+                                  "name": "Read",
+                                  "arguments": "{\"file_path\": \"/path/to/file.txt\"}"
+                                }
+                              }
+                            ]
+                          },
+                          "finish_reason": "tool_calls"
+                        }
+                      ]
                     }
         ]
                 }))
