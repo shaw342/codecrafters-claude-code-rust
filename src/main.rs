@@ -69,7 +69,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         println!("{}", content);
     }
 
-    if let Some(tools_call) = response["choices"][0]["message"]["tools"].as_array() {
+    if let Some(tools_call) = response["choices"][0]["message"]["tool_calls"].as_array() {
         for tool in tools_call {
             if let Some(tool_name) = tool["function"]["name"].as_str() {
                 println!("Tool called: {}", tool_name);
