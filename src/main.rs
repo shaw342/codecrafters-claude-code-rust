@@ -57,28 +57,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                         }
                       }
                     },
-                    {
-                      "choices": [
-                        {
-                          "index": 0,
-                          "message": {
-                            "role": "assistant",
-                            "content": null,
-                            "tool_calls": [
-                              {
-                                "id": "call_abc123",
-                                "type": "function",
-                                "function": {
-                                  "name": "Read",
-                                  "arguments": "{\"file_path\": \"/path/to/file.txt\"}"
-                                }
-                              }
-                            ]
-                          },
-                          "finish_reason": "tool_calls"
-                        }
-                      ]
-                    }
         ]
                 }))
         .await?;
@@ -90,6 +68,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     if let Some(content) = response["choices"][0]["message"]["content"].as_str() {
         println!("{}", content);
     }
+
+    println!("{}", response);
 
     Ok(())
 }
