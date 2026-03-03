@@ -73,6 +73,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         eprintln!("Logs from your program will appear here!");
         for tool in tools_call {
             if let Some(tool_name) = tool["function"]["name"].as_str() {
+                if let Some(argument) = tool["function"]["arguments"].as_str() {
+                    println!("argument {}", argument)
+                }
                 println!("log tool {}", tool_name)
             }
         }
