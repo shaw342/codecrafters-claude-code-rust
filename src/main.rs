@@ -73,11 +73,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         eprintln!("Logs from your program will appear here!");
         for tool in tools_call {
             if let Some(tool_name) = tool["function"]["name"].as_str() {
-                if tool_name == "Read" {
-                    if let Some(path_file) = tool["function"]["parameters"]["file_path"].as_str() {
-                        println!("Tool called: Read with file path {}", path_file);
-                    }
-                }
+                println!("log tool {}", tool_name)
             }
         }
     }
