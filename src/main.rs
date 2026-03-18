@@ -75,9 +75,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             if let Some(tool_name) = tool["function"]["name"].as_str() {
                 if tool_name == "Read" {
                     if let Some(argument) = tool["function"]["arguments"]["file_path"].as_str() {
-                        let content = fs::read_to_string(argument).unwrap();
-                        println!("{}", content);
-                    }
+                        let content  =  fs::read_to_string(argument)?;
+                        println!("{}",content)
                 }
             }
         }
