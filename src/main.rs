@@ -71,13 +71,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     if let Some(tools_call) = response["choices"][0]["message"]["tool_calls"].as_array() {
         eprintln!("Logs from your program will appear here!");
+
         for tool in tools_call {
+            let argument: Value =
+                serde_json::from_str(tool["function"]["arguments"].as_str().unwrap())?;
             if let Some(tool_name) = tool["function"]["name"].as_str() {
                 if tool_name == "Read" {
-                    if let Some(argument) = tool["function"]["arguments"]["file_path"].as_str() {
-                        let content = fs::read_to_string(argument)?;
-                        println!("{}", content)
-                    }
+                    let file_path = argument["file_path"].as_str().unwrap();
+                    let content = std::fs::read_to_string(file_path)?;
+                    println!("{}", content);
                 }
             }
         }
