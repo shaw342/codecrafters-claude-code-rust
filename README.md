@@ -34,3 +34,4 @@ Note: This section is for stages 2 and beyond.
 3. Run `codecrafters submit` to submit your solution to CodeCrafters. Test
    output will be streamed to your terminal.
 # codecrafters-shell-rust
+# codecrafters-claude-code-rust
