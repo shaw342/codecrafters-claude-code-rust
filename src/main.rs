@@ -10,6 +10,12 @@ struct Args {
     prompt: String,
 }
 
+#[derive(serde::Serialize)]
+struct UserMessage {
+    role: String,
+    content: String,
+}
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
@@ -28,40 +34,44 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let client = Client::with_config(config);
 
-    for i in 1..11 {
-        #[allow(unused_variables)]
-        let response: Value = client
-            .chat()
-            .create_byot(json!({
-                        "messages": [
-                            {
-                                "role": "user",
-                                "content": args.prompt
-                            }
-                        ],
-                        "model": "anthropic/claude-haiku-4.5",
-                        "tools": [
-                        {
-                          "type": "function",
-                          "function": {
-                            "name": "Read",
-                            "description": "Read and return the contents of a file",
-                            "parameters": {
-                              "type": "object",
-                              "properties": {
-                                "file_path": {
-                                  "type": "string",
-                                  "description": "The path to the file to read"
-                                }
-                              },
-                              "required": ["file_path"]
-                            }
-                          }
-                        },
-            ]
-                    }))
-            .await?;
+    let mut message: Vec<UserMessage> = vec![];
+
+    message.push(UserMessage {
+        role: "user".to_string(),
+        content: args.prompt,
+    });
+
+    for i in 0..message.len() {
+        println!("message[{}]: {}", i, message[i].content);
     }
+
+    #[allow(unused_variables)]
+    let response: Value = client
+        .chat()
+        .create_byot(json!({
+                    "messages": message,
+                    "model": "anthropic/claude-haiku-4.5",
+                    "tools": [
+                    {
+                      "type": "function",
+                      "function": {
+                        "name": "Read",
+                        "description": "Read and return the contents of a file",
+                        "parameters": {
+                          "type": "object",
+                          "properties": {
+                            "file_path": {
+                              "type": "string",
+                              "description": "The path to the file to read"
+                            }
+                          },
+                          "required": ["file_path"]
+                        }
+                      }
+                    },
+        ]
+                }))
+        .await?;
 
     // You can use print statements as follows for debugging, they'll be visible when running tests.
     eprintln!("Logs from your program will appear here!");
