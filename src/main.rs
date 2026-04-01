@@ -60,7 +60,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // You can use print statements as follows for debugging, they'll be visible when running tests.
     eprintln!("Logs from your program will appear here!");
-    eprintln!("{}", &response["choices"]);
+    eprintln!("{}", &response["choices"][0]);
     let message = &response["choices"][0]["message"];
 
     // TODO: Uncomment the lines below to pass the first stage
