@@ -10,12 +10,6 @@ struct Args {
     prompt: String,
 }
 
-#[derive(serde::Serialize)]
-struct UserMessage {
-    role: String,
-    content: String,
-}
-
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
@@ -34,22 +28,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let client = Client::with_config(config);
 
-    let mut message: Vec<UserMessage> = vec![];
-
-    message.push(UserMessage {
-        role: "user".to_string(),
-        content: args.prompt,
-    });
-
-    for i in 0..message.len() {
-        println!("message[{}]: {}", i, message[i].content);
-    }
+    let mut messages: Vec<Value> = vec![json!({"role": "user", "content": args.prompt})];
 
     #[allow(unused_variables)]
     let response: Value = client
         .chat()
         .create_byot(json!({
-                    "messages": message,
+                    "messages": messages,
                     "model": "anthropic/claude-haiku-4.5",
                     "tools": [
                     {
@@ -76,6 +61,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // You can use print statements as follows for debugging, they'll be visible when running tests.
     eprintln!("Logs from your program will appear here!");
 
+    let message = &response["choices"][0]["message"];
+
     // TODO: Uncomment the lines below to pass the first stage
     if let Some(content) = response["choices"][0]["message"]["content"].as_str() {
         println!("{}", content);
@@ -84,6 +71,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     if let Some(tools_call) = response["choices"][0]["message"]["tool_calls"].as_array() {
         eprintln!("Logs from your program will appear here!");
 
+        messages.push(message.clone());
+
         for tool in tools_call {
             let argument: Value =
                 serde_json::from_str(tool["function"]["arguments"].as_str().unwrap())?;
@@ -91,7 +80,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 if tool_name == "Read" {
                     let file_path = argument["file_path"].as_str().unwrap();
                     let content = std::fs::read_to_string(file_path)?;
-                    println!("{}", content);
+                    messages.push(json!({"role": "assistant", "content": content}));
                 }
             }
         }
