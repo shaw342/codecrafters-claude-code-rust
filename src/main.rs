@@ -82,9 +82,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     }
                 }
             }
-        } else {
-            break;
+            continue;
         }
+        break;
     }
     Ok(())
 }
