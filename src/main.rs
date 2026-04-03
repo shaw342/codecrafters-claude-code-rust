@@ -81,7 +81,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                         messages.push(json!(
                             {
                                 "role": "assistant",
-                                "tool_call_id": tool["id"],
+                                "tool_call_id": tool["id"].as_str().unwrap(),
                                 "name": tool_name,
                                 "content": content
                             }
