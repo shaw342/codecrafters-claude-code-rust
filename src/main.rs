@@ -82,6 +82,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                             {
                                 "role": "assistant",
                                 "tool_call_id": tool["id"],
+                                "name": tool_name,
                                 "content": content
                             }
                         ));
