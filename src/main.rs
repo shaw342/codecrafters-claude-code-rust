@@ -36,7 +36,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             .chat()
             .create_byot(json!({
                         "messages": messages,
-                        "model": "anthropic/claude-haiku-4.5",
+                        "model": "anthropic/claude-3.5-haiku",
                         "tools": [
                         {
                           "type": "function",
@@ -80,7 +80,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                         let content = std::fs::read_to_string(file_path)?;
                         messages.push(json!(
                             {
-                                "role": "assistant",
+                                "role": "tool",
                                 "tool_call_id": tool["id"].as_str().unwrap(),
                                 "name": tool_name,
                                 "content": content
