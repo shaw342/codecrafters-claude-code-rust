@@ -30,59 +30,61 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let mut messages: Vec<Value> = vec![json!({"role": "user", "content": args.prompt})];
 
-    #[allow(unused_variables)]
-    let response: Value = client
-        .chat()
-        .create_byot(json!({
-                    "messages": messages,
-                    "model": "anthropic/claude-haiku-4.5",
-                    "tools": [
-                    {
-                      "type": "function",
-                      "function": {
-                        "name": "Read",
-                        "description": "Read and return the contents of a file",
-                        "parameters": {
-                          "type": "object",
-                          "properties": {
-                            "file_path": {
-                              "type": "string",
-                              "description": "The path to the file to read"
+    loop {
+        #[allow(unused_variables)]
+        let response: Value = client
+            .chat()
+            .create_byot(json!({
+                        "messages": messages,
+                        "model": "anthropic/claude-haiku-4.5",
+                        "tools": [
+                        {
+                          "type": "function",
+                          "function": {
+                            "name": "Read",
+                            "description": "Read and return the contents of a file",
+                            "parameters": {
+                              "type": "object",
+                              "properties": {
+                                "file_path": {
+                                  "type": "string",
+                                  "description": "The path to the file to read"
+                                }
+                              },
+                              "required": ["file_path"]
                             }
-                          },
-                          "required": ["file_path"]
-                        }
-                      }
-                    },
-        ]
-                }))
-        .await?;
+                          }
+                        },
+            ]
+                    }))
+            .await?;
+        // You can use print statements as follows for debugging, they'll be visible when running tests.
+        let message = &response["choices"][0]["message"];
 
-    // You can use print statements as follows for debugging, they'll be visible when running tests.
-    let message = &response["choices"][0]["message"];
+        // TODO: Uncomment the lines below to pass the first stage
+        if let Some(content) = response["choices"][0]["message"]["content"].as_str() {
+            println!("{}", content);
+        }
 
-    // TODO: Uncomment the lines below to pass the first stage
-    if let Some(content) = response["choices"][0]["message"]["content"].as_str() {
-        println!("{}", content);
-    }
+        if let Some(tools_call) = response["choices"][0]["message"]["tool_calls"].as_array() {
+            eprintln!("Logs from your program will appear here!");
 
-    if let Some(tools_call) = response["choices"][0]["message"]["tool_calls"].as_array() {
-        eprintln!("Logs from your program will appear here!");
+            messages.push(message.clone());
 
-        messages.push(message.clone());
-
-        for tool in tools_call {
-            let argument: Value =
-                serde_json::from_str(tool["function"]["arguments"].as_str().unwrap())?;
-            if let Some(tool_name) = tool["function"]["name"].as_str() {
-                if tool_name == "Read" {
-                    let file_path = argument["file_path"].as_str().unwrap();
-                    let content = std::fs::read_to_string(file_path)?;
-                    messages.push(json!({"role": "assistant", "content": content}));
+            for tool in tools_call {
+                let argument: Value =
+                    serde_json::from_str(tool["function"]["arguments"].as_str().unwrap())?;
+                if let Some(tool_name) = tool["function"]["name"].as_str() {
+                    if tool_name == "Read" {
+                        let file_path = argument["file_path"].as_str().unwrap();
+                        let content = std::fs::read_to_string(file_path)?;
+                        messages.push(json!({"role": "assistant", "content": content}));
+                    }
                 }
             }
+        } else {
+            break;
         }
     }
-
     Ok(())
 }
