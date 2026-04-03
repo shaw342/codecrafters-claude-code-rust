@@ -78,7 +78,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     if tool_name == "Read" {
                         let file_path = argument["file_path"].as_str().unwrap();
                         let content = std::fs::read_to_string(file_path)?;
-                        messages.push(json!({"role": "assistant", "content": content}));
+                        messages.push(json!(
+                            {
+                                "role": "assistant",
+                                "tool_call_id": tool["id"],
+                                "content": content
+                            }
+                        ));
                     }
                 }
             }
