@@ -36,7 +36,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             .chat()
             .create_byot(json!({
                         "messages": messages,
-                        "model": "anthropic/claude-3.5-haiku",
+                        "model": "anthropic/claude-haiku-4.5",
                         "tools": [
                         {
                           "type": "function",
