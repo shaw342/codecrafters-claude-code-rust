@@ -37,7 +37,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             .create_byot(json!({
                         "messages": messages,
                         "model": "anthropic/claude-haiku-4.5",
-                        "temperature": "0.8",
+                        "temperature": 0.8,
                         "tools": [
                         {
                           "type": "function",
@@ -61,10 +61,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             .await?;
         // You can use print statements as follows for debugging, they'll be visible when running tests.
         let message = &response["choices"][0]["message"];
+        let has_tools_call = message["tool_calls"].as_array().is_some();
 
         // TODO: Uncomment the lines below to pass the first stage
-        if let Some(content) = response["choices"][0]["message"]["content"].as_str() {
-            println!("{}", content);
+        if !has_tools_call {
+            if let Some(content) = response["choices"][0]["message"]["content"].as_str() {
+                println!("{}", content);
+            }
         }
 
         if let Some(tools_call) = response["choices"][0]["message"]["tool_calls"].as_array() {
