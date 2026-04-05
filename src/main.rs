@@ -37,6 +37,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             .create_byot(json!({
                         "messages": messages,
                         "model": "anthropic/claude-haiku-4.5",
+                        "temperature": 0.8,
                         "tools": [
                         {
                           "type": "function",
