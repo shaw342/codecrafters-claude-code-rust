@@ -37,7 +37,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             .create_byot(json!({
                         "messages": messages,
                         "model": "anthropic/claude-haiku-4.5",
-                        "temperature": 0.8,
                         "tools": [
                         {
                           "type": "function",
@@ -100,18 +99,37 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 let argument: Value =
                     serde_json::from_str(tool["function"]["arguments"].as_str().unwrap())?;
                 if let Some(tool_name) = tool["function"]["name"].as_str() {
-                    if tool_name == "Read" {
-                        let file_path = argument["file_path"].as_str().unwrap();
-                        let content = std::fs::read_to_string(file_path)?;
-                        eprintln!("result of content: {}", content);
-                        messages.push(json!(
-                            {
-                                "role": "tool",
-                                "tool_call_id": tool["id"].as_str().unwrap(),
-                                "name": tool_name,
-                                "content": content
+                    match tool_name {
+                        "Read" => {
+                            let file_path = argument["file_path"].as_str().unwrap();
+                            let content = match std::fs::read_to_string(file_path) {
+                                Ok(c) => c,
+                                Err(e) => format!("Error reading file: {}", e),
+                            };
+
+                            messages.push(json!({
+                                "role":"tool",
+                                "tool_call_id":tool["id"].as_str().unwrap(),
+                                "content":content,
+
+                            }));
+                        }
+                        "Write" => {
+                            let file_path = argument["file_path"].as_str().unwrap();
+                            let file_content = argument["content"].as_str().unwrap();
+                            let content = match std::fs::write(file_path, file_content) {
+                                Ok(_) => "File written successfully".to_string(),
+                                Err(e) => format!("Error writing file: {e}"),
+                            };
+
+                            messages.push(json!({
+                                "role":"tool",
+                                "tool_call_id":tool["id"].as_str().unwrap(),
+                                "content":content,
                             }
-                        ));
+                            ));
+                        }
+                        _ => println!("hello"),
                     }
                 }
             }
